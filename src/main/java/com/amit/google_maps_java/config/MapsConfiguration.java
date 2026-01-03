@@ -2,6 +2,7 @@ package com.amit.google_maps_java.config;
 
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.rpc.FixedHeaderProvider;
+import com.google.maps.GeoApiContext;
 import com.google.maps.addressvalidation.v1.AddressValidationClient;
 import com.google.maps.addressvalidation.v1.AddressValidationSettings;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,14 @@ public class MapsConfiguration {
 
     @Value("${maps.api.key}")
     private String mapsApiKey;
+
+    @Bean(destroyMethod = "shutdown")
+    public GeoApiContext getGeoApiContext() {
+        if (mapsApiKey == null || mapsApiKey.isBlank()) {
+            throw new IllegalStateException("MAPS_API_KEY not set. Set env vars MAPS_API_KEY before running.");
+        }
+        return new GeoApiContext.Builder().apiKey(mapsApiKey).build();
+    }
 
     @Bean
     public AddressValidationClient addressValidationClient() throws IOException {
