@@ -22,7 +22,7 @@ public class GeocodingController {
 
     @PostMapping("/geocode")
     public ResponseEntity<GeoCodeResponse> geocode(@RequestBody GeoCodeRequest request) throws IOException, InterruptedException, ApiException {
-        GeoCodeResponse geocode = geocodingService.geocode(request.getAddress());
+        GeoCodeResponse geocode = geocodingService.invokeGoogle(request.getAddress());
         return ResponseEntity.ok(geocode);
     }
 }

@@ -1,6 +1,7 @@
 package com.amit.google_maps_java.service;
 
 import com.amit.google_maps_java.dto.GeoCodeResponse;
+import com.amit.google_maps_java.model.GeocodeStatus;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
@@ -18,13 +19,18 @@ import java.util.List;
 public class GeocodingService {
     private final GeoApiContext geoApiContext;
 
-    public GeoCodeResponse geocode(String address) throws InterruptedException, IOException, ApiException {
+    public GeoCodeResponse invokeGoogle(String address) throws InterruptedException, IOException, ApiException {
         GeocodingResult[] results = GeocodingApi.geocode(geoApiContext, address).await();
+        GeoCodeResponse geoCodeResponse = new GeoCodeResponse();
+
         if(results == null || results.length == 0) {
-            return null;
+            geoCodeResponse.setGeocodeStatus(GeocodeStatus.ZERO_RESULTS);
+            return geoCodeResponse;
         }
         GeocodingResult result = results[0];
-        GeoCodeResponse geoCodeResponse = new GeoCodeResponse();
+        int resultCount = results.length;
+
+        geoCodeResponse.setGeocodeStatus(GeocodeStatus.OK);
         geoCodeResponse.setFormattedAddress(result.formattedAddress);
         geoCodeResponse.setLatitude(result.geometry.location.lat);
         geoCodeResponse.setLongitude(result.geometry.location.lng);
@@ -37,6 +43,16 @@ public class GeocodingService {
                     .map(AddressType::toCanonicalLiteral)
                     .toList();
             geoCodeResponse.setTypes(types);
+        }
+
+        geoCodeResponse.setResultCount(resultCount);
+        geoCodeResponse.setAmbiguous(resultCount > 1);
+
+        if (resultCount > 1) {
+            List<String> candidates = Arrays.stream(results)
+                    .map(r -> r.formattedAddress)
+                    .toList();
+            geoCodeResponse.setCandidateResponse(candidates);
         }
 
         return geoCodeResponse;

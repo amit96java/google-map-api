@@ -1,5 +1,6 @@
 package com.amit.google_maps_java.dto;
 
+import com.amit.google_maps_java.model.GeocodeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,10 @@ public class GeoCodeResponse {
     private String placeId;
     private List<String> types;
     private boolean partialMatch;
+
+    private int resultCount;
+    private boolean ambiguous;
+    private List<String> candidateResponse;
+
+    private GeocodeStatus geocodeStatus;
 }
